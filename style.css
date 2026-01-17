@@ -1,0 +1,128 @@
+/* The Color Palette: Warm paper and soft charcoal */
+:root {
+    --paper: #f9f7f1;
+    --ink: #2c2c2c;
+    --accent: #8c6a5e; /* A soft, clay-like brown */
+    --border: rgba(44, 44, 44, 0.1);
+}
+
+body {
+    background-color: var(--paper);
+    color: var(--ink);
+    font-family: 'Cormorant Garamond', serif;
+    margin: 0;
+    line-height: 1.6;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* Navigation */
+nav {
+    display: flex;
+    justify-content: space-between;
+    padding: 2rem 10%;
+    border-bottom: 1px solid var(--border);
+}
+
+.logo {
+    font-size: 1.5rem;
+    font-weight: 600;
+    font-style: italic;
+}
+
+.nav-links a {
+    text-decoration: none;
+    color: var(--ink);
+    margin-left: 2rem;
+    font-size: 1.1rem;
+}
+
+/* Main Content */
+main {
+    flex: 1;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 4rem 2rem;
+    text-align: center;
+}
+
+.hero h1 {
+    font-size: 4rem;
+    font-weight: 400;
+    margin-bottom: 1rem;
+}
+
+.description {
+    font-size: 1.6rem;
+    font-style: italic;
+    color: #555;
+    margin-bottom: 3rem;
+}
+
+/* Buttons */
+.cta-group {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 5rem;
+}
+
+button {
+    padding: 0.8rem 2rem;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.primary-btn {
+    background-color: var(--ink);
+    color: var(--paper);
+    border: none;
+}
+
+.secondary-btn {
+    background-color: transparent;
+    border: 1px solid var(--ink);
+    color: var(--ink);
+}
+
+button:hover {
+    opacity: 0.8;
+    transform: translateY(-2px);
+}
+
+/* Feature Cards */
+.features {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    border-top: 1px solid var(--border);
+    padding-top: 3rem;
+}
+
+.card {
+    text-align: left;
+    padding: 1.5rem;
+    border: 1px solid var(--border);
+}
+
+.card h3 {
+    margin-top: 0;
+    color: var(--accent);
+}
+
+/* Footer */
+footer {
+    padding: 3rem;
+    text-align: center;
+    border-top: 1px solid var(--border);
+    font-style: italic;
+}
+
+.small-print {
+    font-size: 0.8rem;
+    margin-top: 1rem;
+    opacity: 0.6;
+}
