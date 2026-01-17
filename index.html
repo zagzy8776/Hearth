@@ -163,6 +163,8 @@
     </footer>
 
 <script>
+    const api_url = 'https://sheetdb.io/api/v1/tm5l5bvsafoxn';
+
     const sparks = [
         "What is a sound that makes you feel safe?",
         "Who is the first person you want to call when you have good news?",
@@ -454,39 +456,45 @@
     };
 
     document.getElementById('story-form').addEventListener("submit", function(e) {
-        e.preventDefault(); // Prevents the page from refreshing too early
-
-        const storyData = {
-            data: [{
-                Story: document.getElementById('user-story').value,
-                Location: document.getElementById('user-location').value,
-                // We split the coordinates back into Lat and Lng for the sheet
-                Lat: document.getElementById('user-coords').value.split(',')[0],
-                Lng: document.getElementById('user-coords').value.split(',')[1],
-                Date: new Date().toLocaleDateString(),
-                Status: "" // Stays blank for your moderation
-            }]
+        e.preventDefault();
+        
+        // Get coordinates and handle potential empty spaces
+        const coordsRaw = document.getElementById('user-coords').value;
+        const coordsArray = coordsRaw.split(',');
+        
+        // This object MUST match your Row 1 headers exactly
+        const newEntry = {
+            "Story": document.getElementById('user-story').value,
+            "Location": document.getElementById('user-location').value,
+            "Lat": coordsArray[0] ? coordsArray[0].trim() : "0",
+            "Lng": coordsArray[1] ? coordsArray[1].trim() : "0",
+            "Date": new Date().toLocaleDateString(),
+            "Status": "" 
         };
 
-        fetch('https://sheetdb.io/api/v1/tm5l5bvsafoxn', {
+        console.log("Attempting to send:", newEntry);
+
+        fetch(api_url, {
             method: 'POST',
             headers: {
+                'Accept': 'application/json',
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify(storyData)
+            body: JSON.stringify({ data: [newEntry] })
         })
         .then(response => {
             if (response.ok) {
-                alert("The Keeper has received your trace. It will appear once it is read.");
+                alert("The Keeper has received your trace.");
                 closeDesk();
                 document.getElementById('story-form').reset();
+                location.reload(); 
             } else {
-                alert("The connection flickered. Please try again.");
+                alert("The connection flickered (Error " + response.status + "). Check your Sheet headers.");
             }
         })
-        .catch(error => {
-            console.error('Error:', error);
-            alert("The Thread is currently unreachable.");
+        .catch(err => {
+            console.error("Fetch Error:", err);
+            alert("The Thread is unreachable.");
         });
     });
 </script>
