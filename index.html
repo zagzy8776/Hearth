@@ -193,27 +193,32 @@
         fetch('https://sheetdb.io/api/v1/tm5l5bvsafoxn')
             .then(res => res.json())
             .then(data => {
-                console.log("Data received from sheet:", data); // This lets us see the data in the console
-                data.forEach(item => {
-                    // Check if Status is 'Live' and we have valid coordinates
-                    if (item.Status && item.Status.trim().toLowerCase() === "live") {
+                console.log("The Hearth is reading these stories:", data);
+
+                data.forEach((item, index) => {
+                    // We look for 'Live' in any capitalization
+                    const isLive = item.Status && item.Status.toString().trim().toLowerCase() === "live";
+                    
+                    if (isLive) {
                         const lat = parseFloat(item.Lat);
                         const lng = parseFloat(item.Lng);
+
                         if (!isNaN(lat) && !isNaN(lng)) {
+                            console.log(`Placing marker ${index} at:`, lat, lng);
                             L.marker([lat, lng]).addTo(map)
                              .bindPopup(`
-                                <div style="font-family: 'Cormorant Garamond', serif; min-width: 150px;">
+                                <div style="font-family: 'Cormorant Garamond', serif;">
                                     <i style="color: #666;">${item.Location}</i><br>
                                     <p style="font-size: 1.1em; margin-top: 5px;">"${item.Story}"</p>
                                 </div>
                              `);
                         } else {
-                            console.warn("Skipping item due to invalid coordinates:", item);
+                            console.error(`Row ${index} has bad coordinates:`, item.Lat, item.Lng);
                         }
                     }
                 });
             })
-            .catch(err => console.error("Error loading markers:", err));
+            .catch(err => console.error("Connection lost:", err));
 
         // 5. Let the user "Touch" the map
         map.on('click', function(e) {
