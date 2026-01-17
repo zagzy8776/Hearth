@@ -191,6 +191,34 @@ footer {
     margin: 4rem -20%; /* Expands the background color */
 }
 
+/* The Glowing Ember Marker */
+.ember-marker {
+    background: #e67e22;
+    border: 2px solid #fff;
+    border-radius: 50%;
+    box-shadow: 0 0 10px #f39c12, 0 0 20px #d35400;
+}
+
+/* The Parchment Popup */
+.leaflet-popup-content-wrapper {
+    background: #fdf5e6; /* Old Lace color */
+    border-radius: 2px;
+    border-left: 5px solid #d35400;
+    font-family: 'Cormorant Garamond', serif;
+    box-shadow: 5px 5px 15px rgba(0,0,0,0.3);
+}
+
+.leaflet-popup-tip {
+    background: #fdf5e6;
+}
+
+.popup-story {
+    font-size: 1.2em;
+    line-height: 1.4;
+    color: #2c3e50;
+    font-style: italic;
+}
+
 /* Slow Notification */
 #slow-notification {
     color: var(--accent);

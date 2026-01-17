@@ -195,25 +195,27 @@
             .then(data => {
                 console.log("The Hearth is reading these stories:", data);
 
-                data.forEach((item, index) => {
-                    // We look for 'Live' in any capitalization
-                    const isLive = item.Status && item.Status.toString().trim().toLowerCase() === "live";
-                    
-                    if (isLive) {
+                // Create the custom icon
+                const emberIcon = L.divIcon({
+                    className: 'ember-marker',
+                    iconSize: [12, 12], // Small and delicate
+                    iconAnchor: [6, 6]
+                });
+
+                data.forEach(item => {
+                    if (item.Status && item.Status.trim().toLowerCase() === "live") {
                         const lat = parseFloat(item.Lat);
                         const lng = parseFloat(item.Lng);
 
                         if (!isNaN(lat) && !isNaN(lng)) {
-                            console.log(`Placing marker ${index} at:`, lat, lng);
-                            L.marker([lat, lng]).addTo(map)
+                            L.marker([lat, lng], { icon: emberIcon }).addTo(map)
                              .bindPopup(`
-                                <div style="font-family: 'Cormorant Garamond', serif;">
-                                    <i style="color: #666;">${item.Location}</i><br>
-                                    <p style="font-size: 1.1em; margin-top: 5px;">"${item.Story}"</p>
+                                <div class="popup-story">
+                                    <small style="color: #a04000; text-transform: uppercase;">— ${item.Location} —</small>
+                                    <p>"${item.Story}"</p>
+                                    <div style="text-align:right; font-size: 0.8em; color: #7f8c8d;">${item.Date}</div>
                                 </div>
                              `);
-                        } else {
-                            console.error(`Row ${index} has bad coordinates:`, item.Lat, item.Lng);
                         }
                     }
                 });
