@@ -458,29 +458,47 @@
 
     document.getElementById('story-form').addEventListener("submit", function(e) {
         e.preventDefault();
+        // 1. Capture the values
+        const story = document.getElementById('user-story').value;
+        const locationName = document.getElementById('user-location').value;
         const coords = document.getElementById('user-coords').value.split(',');
-        // We only send the 4 absolute essentials first
-        const newEntry = {
-            "Story": document.getElementById('user-story').value,
-            "Location": document.getElementById('user-location').value,
-            "Lat": coords[0].trim(),
-            "Lng": coords[1].trim()
+
+        // 2. Build the package EXACTLY as SheetDB wants it
+        const payload = {
+            "data": [
+                {
+                    "Story": story,
+                    "Location": locationName,
+                    "Lat": coords[0].trim(),
+                    "Lng": coords[1].trim(),
+                    "Date": new Date().toLocaleDateString(),
+                    "Status": ""
+                }
+            ]
         };
 
-        fetch(api_url, {
+        // 3. Send it
+        fetch('https://sheetdb.io/api/v1/tm5l5bvsafoxn', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ data: [newEntry] })
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
         })
         .then(response => {
             if (response.ok) {
-                alert("Success! The trace has been left.");
-                location.reload();
+                alert("The trace has been recorded.");
+                closeDesk();
+                window.location.reload();
             } else {
-                console.log("Still failing. Code:", response.status);
-                alert("The connection flickered again.");
+                // This will tell us the exact column name it's choking on
+                return response.json().then(errorData => {
+                    console.error("SheetDB detailed error:", errorData);
+                    alert("Error: " + (errorData.error || "Unknown error"));
+                });
             }
-        });
+        })
+        .catch(err => console.error("Network problem:", err));
     });
 </script>
 </body>
