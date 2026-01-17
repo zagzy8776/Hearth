@@ -126,3 +126,66 @@ footer {
     margin-top: 1rem;
     opacity: 0.6;
 }
+
+/* Daily Spark */
+.daily-spark {
+    margin-bottom: 2rem;
+}
+
+.spark-box {
+    background: #fff;
+    padding: 1rem;
+    border: 1px solid var(--border);
+    display: inline-block;
+    box-shadow: 4px 4px 0px var(--accent);
+}
+
+.label {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--accent);
+    font-weight: bold;
+}
+
+/* Memory Jar */
+.memory-jar {
+    margin-top: 5rem;
+    padding: 3rem 0;
+}
+
+.story-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+.story-card {
+    background: white;
+    padding: 2rem;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    font-style: italic;
+    transition: transform 0.3s ease;
+}
+
+.story-card:hover {
+    transform: rotate(-1deg);
+}
+
+.author {
+    display: block;
+    margin-top: 1rem;
+    font-size: 0.9rem;
+    font-style: normal;
+    font-weight: bold;
+    color: var(--accent);
+}
+
+/* Contribution Section */
+.contribution {
+    padding: 5rem 0;
+    background: #eeebe3;
+    margin: 4rem -20%; /* Expands the background color */
+}
