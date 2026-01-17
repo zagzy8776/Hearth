@@ -191,6 +191,68 @@ footer {
     margin: 4rem -20%; /* Expands the background color */
 }
 
+/* Slow Notification */
+#slow-notification {
+    color: var(--accent);
+    font-weight: bold;
+    margin-left: 2rem;
+}
+
+/* Digital Hearthfire */
+@keyframes flicker {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+/* Breathe Tool */
+#breathe-tool {
+    text-align: center;
+    padding: 2rem 0;
+    font-style: italic;
+}
+
+/* Writing Desk Modal */
+.modal {
+    display: none;
+    position: fixed; z-index: 9999;
+    left: 0; top: 0; width: 100%; height: 100%;
+    background-color: rgba(44, 44, 44, 0.8); /* Dim the background */
+    backdrop-filter: blur(8px);
+}
+
+.modal-content {
+    background-color: #f9f7f1;
+    margin: 5% auto;
+    padding: 3rem;
+    width: 60%;
+    max-width: 700px;
+    border: 1px solid var(--ink);
+    box-shadow: 20px 20px 0px var(--accent);
+    position: relative;
+}
+
+.close-btn {
+    position: absolute; right: 20px; top: 10px;
+    font-size: 2rem; cursor: pointer;
+}
+
+.input-group {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin: 1rem 0;
+}
+
+#user-story {
+    width: 100%; height: 250px;
+    border: 1px solid var(--border);
+    background: transparent;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.2rem;
+    padding: 1rem;
+    resize: none;
+}
+
 /* Reflection and Audio */
 .reflect-btn, .send-reflection, .record-audio {
     margin-top: 1rem;
@@ -215,11 +277,37 @@ footer {
     border-top: 1px solid var(--border);
 }
 
-#perspective-bridge textarea {
+.bridge-tabs {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 2rem;
+}
+
+.tab-btn {
+    background: transparent;
+    border: 1px solid var(--ink);
+    padding: 0.5rem 1rem;
+    margin: 0 0.5rem;
+    cursor: pointer;
+    font-family: 'Cormorant Garamond', serif;
+}
+
+.tab-btn.active {
+    background: var(--ink);
+    color: var(--paper);
+}
+
+.tab-content textarea {
     width: 100%;
     margin-top: 1rem;
     font-family: 'Cormorant Garamond', serif;
     font-style: italic;
+}
+
+#unfinished-list div, #completed-list div {
+    margin-bottom: 1rem;
+    padding: 1rem;
+    border: 1px solid var(--border);
 }
 
 /* Handwritten Effect */

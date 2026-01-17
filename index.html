@@ -13,6 +13,7 @@
 
     <nav>
         <div class="logo">The Human Thread</div>
+        <div id="slow-notification" style="display:none;">📬 You have a letter!</div>
         <div class="nav-links">
             <a href="#">The Memory Map</a>
             <a href="#">Perspective Bridge</a>
@@ -23,6 +24,7 @@
     <main>
         <section class="hero">
             <h1>Pull up a chair.</h1>
+            <div id="hearthfire"></div>
             <p class="description">
                 The Human Thread is a slow-space for the human soul.
                 A sanctuary built to remind us that we are more than data points.
@@ -54,6 +56,7 @@
                         <button class="reflect-btn">Reflect</button>
                         <div class="reflection-form" style="display:none;">
                             <textarea placeholder="How does this story land with you?" rows="3"></textarea>
+                            <canvas class="handwritten-canvas" width="300" height="100" style="border:1px solid #ccc;"></canvas>
                             <button class="send-reflection" disabled>Send Reflection</button>
                             <button class="record-audio">Record Audio Whisper</button>
                         </div>
@@ -64,6 +67,7 @@
                         <button class="reflect-btn">Reflect</button>
                         <div class="reflection-form" style="display:none;">
                             <textarea placeholder="How does this story land with you?" rows="3"></textarea>
+                            <canvas class="handwritten-canvas" width="300" height="100" style="border:1px solid #ccc;"></canvas>
                             <button class="send-reflection" disabled>Send Reflection</button>
                             <button class="record-audio">Record Audio Whisper</button>
                         </div>
@@ -78,11 +82,41 @@
             </div>
         </section>
 
+        <section id="sand-script">
+            <h2>The Sand Script</h2>
+            <p>Write something you need to let go of. It will fade away in 60 seconds.</p>
+            <textarea id="ephemeral-text" placeholder="Pour your heart here..." rows="4"></textarea>
+            <button id="start-decay">Begin the Fade</button>
+        </section>
+
         <section id="perspective-bridge">
             <h2>The Perspective Bridge</h2>
-            <p>Current Opening Line: <span id="opening-line">None</span></p>
-            <textarea id="bridge-input" placeholder="Write the closing line or a new opening line" rows="3"></textarea>
-            <button id="submit-bridge">Submit</button>
+            <div class="bridge-tabs">
+                <button class="tab-btn active" data-tab="sequential">Sequential Exchange</button>
+                <button class="tab-btn" data-tab="public">Public Wall</button>
+                <button class="tab-btn" data-tab="blind">Blind Match</button>
+            </div>
+            <div id="sequential-tab" class="tab-content">
+                <p>Current Opening Line: <span id="opening-line">None</span></p>
+                <textarea id="bridge-input" placeholder="Write the closing line or a new opening line" rows="3"></textarea>
+                <button id="submit-bridge">Submit</button>
+            </div>
+            <div id="public-tab" class="tab-content" style="display:none;">
+                <h3>Unfinished Bridges</h3>
+                <div id="unfinished-list"></div>
+                <h3>Completed Stories</h3>
+                <div id="completed-list"></div>
+            </div>
+            <div id="blind-tab" class="tab-content" style="display:none;">
+                <textarea id="blind-input" placeholder="Write an opening line to send into the Thread" rows="3"></textarea>
+                <button id="submit-blind">Send to Thread</button>
+                <button id="complete-random">Complete a Random Story</button>
+                <div id="random-story" style="display:none;">
+                    <p id="random-opening"></p>
+                    <textarea id="random-closing" placeholder="Write the closing line" rows="3"></textarea>
+                    <button id="submit-closing">Submit Closing</button>
+                </div>
+            </div>
         </section>
 
             <section id="map-section">
@@ -94,8 +128,31 @@
     <section class="contribution">
         <h3>Add your thread to the weave.</h3>
         <p>Have a story or a moment of wisdom to share?</p>
-        <a href="YOUR_GOOGLE_FORM_LINK" class="primary-btn">Leave a Memory</a>
+        <button onclick="openDesk()" class="primary-btn">Leave a Memory</button>
     </section>
+
+    <div id="writing-desk" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeDesk()">&times;</span>
+            <h2 class="handwritten">Leave a Trace</h2>
+            <p>Your words will be tucked away for the Keeper to read before they join the Thread.</p>
+
+            <form id="story-form">
+                <textarea id="user-story" placeholder="What is a memory you want to keep safe?" required></textarea>
+                <div class="input-group">
+                    <input type="text" id="user-location" placeholder="City, Country" required>
+                    <input type="text" id="user-coords" placeholder="Lat, Lng (Click map to set)" readonly>
+                </div>
+                <button type="submit" class="primary-btn">Place on the Map</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="breathe-tool">
+        <p>Breathe with me...</p>
+        <div id="breath-circle"></div>
+    </div>
+
     <footer>
         <p>Built with care, not code alone. This site is a gift from one human heart to another.</p>
         <p class="small-print">2026 • Made by Humans</p>
@@ -125,29 +182,23 @@
             attribution: '&copy; OpenStreetMap contributors'
         }).addTo(map);
 
-        // 3. Adding sample "Memories"
-        const memories = [
-            {
-                coords: [6.5244, 3.3792], // Lagos, Nigeria
-                text: "Under the yellow bridge, I shared a loaf of agege bread with a stranger who became my best friend."
-            },
-            {
-                coords: [40.7128, -74.0060], // New York
-                text: "The snow was so quiet at 3 AM. I felt like the only person in the world, and for once, I wasn't lonely."
-            }
-        ];
+        // 3. Pull memories from the sheet
+        fetch('https://sheetdb.io/api/v1/tm5l5bvsafoxn')
+          .then(response => response.json())
+          .then(data => {
+            // We filter the data BEFORE putting it on the map
+            const approvedStories = data.filter(item => item.Status === "Live");
 
-        // 4. Place them on the map
-        memories.forEach(memory => {
-            L.marker(memory.coords).addTo(map)
-                .bindPopup(memory.text);
-        });
+            approvedStories.forEach(item => {
+                L.marker([item.Lat, item.Lng]).addTo(map)
+                 .bindPopup(`<p class="handwritten">"${item.Story}"</p>`);
+            });
+          });
 
         // 5. Let the user "Touch" the map
         map.on('click', function(e) {
-            let lat = e.latlng.lat.toFixed(4);
-            let lng = e.latlng.lng.toFixed(4);
-            alert("You clicked at " + lat + ", " + lng + ". In the full version, this would open a form to save your memory here!");
+            openDesk();
+            document.getElementById('user-coords').value = `${e.latlng.lat.toFixed(4)}, ${e.latlng.lng.toFixed(4)}`;
         });
 
     // Dynamic Lighting
@@ -190,19 +241,32 @@
         });
     });
 
-    // Perspective Bridge
+    // Perspective Bridge Tabs
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
+            btn.classList.add('active');
+            document.getElementById(btn.dataset.tab + '-tab').style.display = 'block';
+        });
+    });
+
+    // Sequential Exchange
     let bridgeData = JSON.parse(localStorage.getItem('bridgeData')) || { opening: null, closing: null };
     const openingLineEl = document.getElementById('opening-line');
     const bridgeInput = document.getElementById('bridge-input');
     const submitBridge = document.getElementById('submit-bridge');
 
-    if (bridgeData.opening && !bridgeData.closing) {
-        openingLineEl.textContent = bridgeData.opening;
-        bridgeInput.placeholder = "Write the closing line";
-    } else {
-        openingLineEl.textContent = "None";
-        bridgeInput.placeholder = "Write a new opening line";
+    function updateSequential() {
+        if (bridgeData.opening && !bridgeData.closing) {
+            openingLineEl.textContent = bridgeData.opening;
+            bridgeInput.placeholder = "Write the closing line";
+        } else {
+            openingLineEl.textContent = "None";
+            bridgeInput.placeholder = "Write a new opening line";
+        }
     }
+    updateSequential();
 
     submitBridge.addEventListener('click', () => {
         const text = bridgeInput.value.trim();
@@ -216,12 +280,204 @@
             bridgeData = { opening: null, closing: null };
         }
         localStorage.setItem('bridgeData', JSON.stringify(bridgeData));
-        location.reload();
+        updateSequential();
+        bridgeInput.value = '';
+    });
+
+    // Public Wall
+    let unfinished = JSON.parse(localStorage.getItem('unfinished')) || [];
+    let completed = JSON.parse(localStorage.getItem('completed')) || [];
+
+    function renderPublic() {
+        const unfinishedList = document.getElementById('unfinished-list');
+        const completedList = document.getElementById('completed-list');
+        unfinishedList.innerHTML = '';
+        completedList.innerHTML = '';
+        unfinished.forEach((item, index) => {
+            const div = document.createElement('div');
+            div.innerHTML = `<p>${item}</p><button data-index="${index}">Complete This Bridge</button>`;
+            unfinishedList.appendChild(div);
+        });
+        completed.forEach(item => {
+            const div = document.createElement('div');
+            div.innerHTML = `<p>${item}</p>`;
+            completedList.appendChild(div);
+        });
+    }
+    renderPublic();
+
+    document.getElementById('unfinished-list').addEventListener('click', (e) => {
+        if (e.target.tagName === 'BUTTON') {
+            const index = e.target.dataset.index;
+            const opening = unfinished[index];
+            const closing = prompt('Write the closing line:');
+            if (closing) {
+                completed.push(`"${opening}" ... "${closing}"`);
+                unfinished.splice(index, 1);
+                localStorage.setItem('unfinished', JSON.stringify(unfinished));
+                localStorage.setItem('completed', JSON.stringify(completed));
+                renderPublic();
+            }
+        }
+    });
+
+    // Add to unfinished from sequential or something, but for now, users can add via sequential.
+
+    // Blind Match
+    let blindPool = JSON.parse(localStorage.getItem('blindPool')) || [];
+
+    document.getElementById('submit-blind').addEventListener('click', () => {
+        const text = document.getElementById('blind-input').value.trim();
+        if (!text) return alert('Please enter some text.');
+        blindPool.push(text);
+        localStorage.setItem('blindPool', JSON.stringify(blindPool));
+        document.getElementById('blind-input').value = '';
+        alert('Opening line sent into the Thread!');
+    });
+
+    document.getElementById('complete-random').addEventListener('click', () => {
+        if (blindPool.length === 0) return alert('No openings in the pool yet.');
+        const randomIndex = Math.floor(Math.random() * blindPool.length);
+        const opening = blindPool[randomIndex];
+        document.getElementById('random-opening').textContent = opening;
+        document.getElementById('random-story').style.display = 'block';
+    });
+
+    document.getElementById('submit-closing').addEventListener('click', () => {
+        const closing = document.getElementById('random-closing').value.trim();
+        if (!closing) return alert('Please enter the closing line.');
+        const opening = document.getElementById('random-opening').textContent;
+        completed.push(`"${opening}" ... "${closing}"`);
+        localStorage.setItem('completed', JSON.stringify(completed));
+        // Remove from pool
+        const index = blindPool.indexOf(opening);
+        if (index > -1) blindPool.splice(index, 1);
+        localStorage.setItem('blindPool', JSON.stringify(blindPool));
+        document.getElementById('random-story').style.display = 'none';
+        document.getElementById('random-closing').value = '';
+        alert('Story completed and added to Public Wall!');
+        renderPublic();
     });
 
     // Refresh Feed
     document.getElementById('refresh-feed').addEventListener('click', () => {
         alert('New stories loaded!');
+    });
+
+    // Slow Notification
+    if (hour === 18) {
+        document.getElementById('slow-notification').style.display = 'block';
+    }
+
+    // Handwritten Canvas
+    document.querySelectorAll('.handwritten-canvas').forEach(canvas => {
+        const ctx = canvas.getContext('2d');
+        let drawing = false;
+        canvas.addEventListener('mousedown', (e) => {
+            drawing = true;
+            ctx.beginPath();
+            ctx.moveTo(e.offsetX, e.offsetY);
+        });
+        canvas.addEventListener('mousemove', (e) => {
+            if (drawing) {
+                ctx.lineTo(e.offsetX, e.offsetY);
+                ctx.stroke();
+            }
+        });
+        canvas.addEventListener('mouseup', () => {
+            drawing = false;
+        });
+    });
+
+    // Digital Hearthfire
+    const hearthfire = document.getElementById('hearthfire');
+    hearthfire.style.width = '50px';
+    hearthfire.style.height = '50px';
+    hearthfire.style.background = 'orange';
+    hearthfire.style.borderRadius = '50%';
+    hearthfire.style.position = 'absolute';
+    hearthfire.style.top = '10px';
+    hearthfire.style.right = '10px';
+    hearthfire.style.animation = 'flicker 2s infinite';
+
+    // Ink Decay
+    document.getElementById('start-decay').addEventListener('click', () => {
+        const textEl = document.getElementById('ephemeral-text');
+        let opacity = 1;
+        const fadeInterval = setInterval(() => {
+            opacity -= 1 / 60; // 60 seconds
+            textEl.style.opacity = opacity;
+            if (opacity <= 0) {
+                clearInterval(fadeInterval);
+                textEl.value = '';
+                textEl.style.opacity = 1;
+            }
+        }, 1000);
+    });
+
+    // Breathe With Me
+    const breathCircle = document.getElementById('breath-circle');
+    breathCircle.style.width = '100px';
+    breathCircle.style.height = '100px';
+    breathCircle.style.background = 'lightblue';
+    breathCircle.style.borderRadius = '50%';
+    breathCircle.style.margin = '20px auto';
+    breathCircle.style.transition = 'transform 4s ease-in-out';
+    function breathe() {
+        breathCircle.style.transform = 'scale(1.5)';
+        setTimeout(() => {
+            breathCircle.style.transform = 'scale(1)';
+            setTimeout(breathe, 4000);
+        }, 4000);
+    }
+    breathe();
+
+    // Writing Desk Modal
+    function openDesk() {
+        document.getElementById('writing-desk').style.display = 'block';
+    }
+
+    function closeDesk() {
+        document.getElementById('writing-desk').style.display = 'none';
+    }
+
+    // Close modal when clicking outside
+    window.onclick = function(event) {
+        const modal = document.getElementById('writing-desk');
+        if (event.target == modal) {
+            modal.style.display = 'none';
+        }
+    };
+
+    // Form submission
+    const form = document.getElementById('story-form');
+    form.addEventListener("submit", e => {
+      e.preventDefault();
+
+      const coords = document.getElementById('user-coords').value.split(', ');
+      const lat = parseFloat(coords[0]);
+      const lng = parseFloat(coords[1]);
+
+      // We send the data to your SheetDB URL
+      fetch('https://sheetdb.io/api/v1/tm5l5bvsafoxn', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+              data: [{
+                  "Name": "Anonymous",
+                  "Story": document.getElementById('user-story').value,
+                  "Location": document.getElementById('user-location').value,
+                  "Date": new Date().toLocaleDateString(),
+                  "Lat": lat,
+                  "Lng": lng
+              }]
+          })
+      })
+      .then(response => {
+          alert("Your story has been added to the thread.");
+          closeDesk();
+          location.reload(); // Refresh to see the new story
+      });
     });
 </script>
 </body>
