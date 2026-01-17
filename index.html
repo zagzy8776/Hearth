@@ -9,6 +9,7 @@
 
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <link rel="icon" href="favicon.ico">
     
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
@@ -468,8 +469,8 @@
             "Location": document.getElementById('user-location').value,
             "Lat": coordsArray[0] ? coordsArray[0].trim() : "0",
             "Lng": coordsArray[1] ? coordsArray[1].trim() : "0",
-            "Date": new Date().toLocaleDateString(),
-            "Status": ""
+            "Date": new Date().toISOString().split('T')[0],
+            "Status": "Pending"
         };
 
         console.log("Attempting to send:", newEntry);
