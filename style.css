@@ -189,3 +189,35 @@ footer {
     background: #eeebe3;
     margin: 4rem -20%; /* Expands the background color */
 }
+
+#map-section {
+    padding: 4rem 0;
+    border-top: 1px solid var(--border);
+}
+
+#map {
+    height: 500px;
+    width: 100%;
+    border: 1px solid var(--ink);
+    border-radius: 4px;
+    box-shadow: 10px 10px 0px rgba(140, 106, 94, 0.2); /* Soft shadow */
+    margin-top: 2rem;
+}
+
+.map-instruction {
+    font-style: italic;
+    opacity: 0.8;
+}
+
+/* Customizing the "Popups" where stories live */
+.leaflet-popup-content-wrapper {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Cormorant Garamond', serif;
+    border-radius: 0;
+}
+.contribution {
+    padding: 5rem 0;
+    background: #eeebe3;
+    margin: 4rem -20%; /* Expands the background color */
+}

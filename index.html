@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The Digital Hearth | A Sanctuary</title>
@@ -63,6 +65,12 @@
             </div>
         </section>
 
+            <section id="map-section">
+                <h2>The World’s Hidden Heart</h2>
+                <p class="map-instruction">Click a marker to read a memory, or click the map to leave your own.</p>
+                <div id="map"></div>
+            </section>
+
     <section class="contribution">
         <h3>Add your wood to the fire.</h3>
         <p>Have a story or a moment of wisdom to share?</p>
@@ -73,5 +81,54 @@
         <p class="small-print">2026 • Made by Humans</p>
     </footer>
 
+<script>
+    const sparks = [
+        "What is a sound that makes you feel safe?",
+        "Who is the first person you want to call when you have good news?",
+        "What is a smell that reminds you of childhood?",
+        "If you could send a letter to yourself 10 years ago, what would the first sentence be?",
+        "What is the most beautiful thing you saw today?",
+        "What is a secret act of kindness you’ve never told anyone about?"
+    ];
+
+    // This picks a random question from the list above
+    const randomSpark = sparks[Math.floor(Math.random() * sparks.length)];
+    
+    // This puts the question into the "spark-question" paragraph
+    document.getElementById('spark-question').innerText = `"${randomSpark}"`;
+
+        // 1. Initialize the map
+        var map = L.map('map').setView([20, 0], 2); // Centers the world
+
+        // 2. Use a "Human" style map tile (Sepia/Black & White)
+        L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+
+        // 3. Adding sample "Memories"
+        const memories = [
+            {
+                coords: [6.5244, 3.3792], // Lagos, Nigeria
+                text: "Under the yellow bridge, I shared a loaf of agege bread with a stranger who became my best friend."
+            },
+            {
+                coords: [40.7128, -74.0060], // New York
+                text: "The snow was so quiet at 3 AM. I felt like the only person in the world, and for once, I wasn't lonely."
+            }
+        ];
+
+        // 4. Place them on the map
+        memories.forEach(memory => {
+            L.marker(memory.coords).addTo(map)
+                .bindPopup(memory.text);
+        });
+
+        // 5. Let the user "Touch" the map
+        map.on('click', function(e) {
+            let lat = e.latlng.lat.toFixed(4);
+            let lng = e.latlng.lng.toFixed(4);
+            alert("You clicked at " + lat + ", " + lng + ". In the full version, this would open a form to save your memory here!");
+        });
+</script>
 </body>
 </html>
