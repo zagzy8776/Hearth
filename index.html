@@ -202,7 +202,7 @@
         // 5. Let the user "Touch" the map
         map.on('click', function(e) {
             openDesk();
-            document.getElementById('user-coords').value = `${e.latlng.lat.toFixed(4)}, ${e.latlng.lng.toFixed(4)}`;
+            document.getElementById('user-coords').value = `${e.latlng.lat.toFixed(4)},${e.latlng.lng.toFixed(4)}`;
         });
 
     // Dynamic Lighting
@@ -453,35 +453,41 @@
         }
     };
 
-    // Form submission
-    const form = document.getElementById('story-form');
-    form.addEventListener("submit", e => {
-      e.preventDefault();
+    document.getElementById('story-form').addEventListener("submit", function(e) {
+        e.preventDefault(); // Prevents the page from refreshing too early
 
-      const coords = document.getElementById('user-coords').value.split(', ');
-      const lat = parseFloat(coords[0]);
-      const lng = parseFloat(coords[1]);
+        const storyData = {
+            data: [{
+                Story: document.getElementById('user-story').value,
+                Location: document.getElementById('user-location').value,
+                // We split the coordinates back into Lat and Lng for the sheet
+                Lat: document.getElementById('user-coords').value.split(',')[0],
+                Lng: document.getElementById('user-coords').value.split(',')[1],
+                Date: new Date().toLocaleDateString(),
+                Status: "" // Stays blank for your moderation
+            }]
+        };
 
-      // We send the data to your SheetDB URL
-      fetch('https://sheetdb.io/api/v1/tm5l5bvsafoxn', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-              data: [{
-                  "Name": "Anonymous",
-                  "Story": document.getElementById('user-story').value,
-                  "Location": document.getElementById('user-location').value,
-                  "Date": new Date().toLocaleDateString(),
-                  "Lat": lat,
-                  "Lng": lng
-              }]
-          })
-      })
-      .then(response => {
-          alert("Your story has been added to the thread.");
-          closeDesk();
-          location.reload(); // Refresh to see the new story
-      });
+        fetch('https://sheetdb.io/api/v1/tm5l5bvsafoxn', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(storyData)
+        })
+        .then(response => {
+            if (response.ok) {
+                alert("The Keeper has received your trace. It will appear once it is read.");
+                closeDesk();
+                document.getElementById('story-form').reset();
+            } else {
+                alert("The connection flickered. Please try again.");
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert("The Thread is currently unreachable.");
+        });
     });
 </script>
 </body>
