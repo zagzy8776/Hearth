@@ -467,10 +467,10 @@
         const newEntry = {
             "Story": document.getElementById('user-story').value,
             "Location": document.getElementById('user-location').value,
-            "Lat": coordsArray[0] ? coordsArray[0].trim() : "0",
-            "Lng": coordsArray[1] ? coordsArray[1].trim() : "0",
-            "Date": new Date().toISOString().split('T')[0],
-            "Status": "Pending"
+            "Lat": coordsArray[0] ? coordsArray[0].trim() : "",
+            "Lng": coordsArray[1] ? coordsArray[1].trim() : "",
+            "Date": new Date().toLocaleDateString(),
+            "Status": ""
         };
 
         console.log("Attempting to send:", newEntry);
