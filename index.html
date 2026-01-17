@@ -5,14 +5,14 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Digital Hearth | A Sanctuary</title>
+    <title>The Human Thread | A Sanctuary</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
 </head>
 <body>
 
     <nav>
-        <div class="logo">The Digital Hearth</div>
+        <div class="logo">The Human Thread</div>
         <div class="nav-links">
             <a href="#">The Memory Map</a>
             <a href="#">Perspective Bridge</a>
@@ -24,8 +24,8 @@
         <section class="hero">
             <h1>Pull up a chair.</h1>
             <p class="description">
-                The Digital Hearth is a slow-space for the human soul. 
-                A sanctuary built to remind us that we are more than data points. 
+                The Human Thread is a slow-space for the human soul.
+                A sanctuary built to remind us that we are more than data points.
                 Here, we don't "scroll"—we wander.
             </p>
             <div class="cta-group">
@@ -45,15 +45,28 @@
             </div>
         </section>
             <section class="memory-jar">
-                <h2>Stories from the Hearth</h2>
+                <h2>Stories from the Thread</h2>
+                <button id="refresh-feed">Refresh Feed</button>
                 <div class="story-grid">
                     <div class="story-card">
                         <p>"My grandmother always smelled like cinnamon and old books. Every time I bake, she is back in the kitchen with me."</p>
                         <span class="author">— Anonymous from Lagos</span>
+                        <button class="reflect-btn">Reflect</button>
+                        <div class="reflection-form" style="display:none;">
+                            <textarea placeholder="How does this story land with you?" rows="3"></textarea>
+                            <button class="send-reflection" disabled>Send Reflection</button>
+                            <button class="record-audio">Record Audio Whisper</button>
+                        </div>
                     </div>
                     <div class="story-card">
                         <p>"I finally told my friend I was struggling. The sky looked bluer after that phone call."</p>
                         <span class="author">— Sarah</span>
+                        <button class="reflect-btn">Reflect</button>
+                        <div class="reflection-form" style="display:none;">
+                            <textarea placeholder="How does this story land with you?" rows="3"></textarea>
+                            <button class="send-reflection" disabled>Send Reflection</button>
+                            <button class="record-audio">Record Audio Whisper</button>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -65,6 +78,13 @@
             </div>
         </section>
 
+        <section id="perspective-bridge">
+            <h2>The Perspective Bridge</h2>
+            <p>Current Opening Line: <span id="opening-line">None</span></p>
+            <textarea id="bridge-input" placeholder="Write the closing line or a new opening line" rows="3"></textarea>
+            <button id="submit-bridge">Submit</button>
+        </section>
+
             <section id="map-section">
                 <h2>The World’s Hidden Heart</h2>
                 <p class="map-instruction">Click a marker to read a memory, or click the map to leave your own.</p>
@@ -72,7 +92,7 @@
             </section>
 
     <section class="contribution">
-        <h3>Add your wood to the fire.</h3>
+        <h3>Add your thread to the weave.</h3>
         <p>Have a story or a moment of wisdom to share?</p>
         <a href="YOUR_GOOGLE_FORM_LINK" class="primary-btn">Leave a Memory</a>
     </section>
@@ -129,6 +149,80 @@
             let lng = e.latlng.lng.toFixed(4);
             alert("You clicked at " + lat + ", " + lng + ". In the full version, this would open a form to save your memory here!");
         });
+
+    // Dynamic Lighting
+    const hour = new Date().getHours();
+    let bgColor;
+    if (hour >= 6 && hour < 12) bgColor = '#f9f7f1'; // morning
+    else if (hour >= 12 && hour < 18) bgColor = '#fff8dc'; // day
+    else if (hour >= 18 && hour < 22) bgColor = '#ffe4b5'; // evening
+    else bgColor = '#1a1a2e'; // night
+    document.body.style.backgroundColor = bgColor;
+
+    // Reflection functionality
+    document.querySelectorAll('.reflect-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const form = btn.nextElementSibling;
+            form.style.display = form.style.display === 'none' ? 'block' : 'none';
+        });
+    });
+
+    document.querySelectorAll('.reflection-form textarea').forEach(textarea => {
+        textarea.addEventListener('input', () => {
+            const words = textarea.value.trim().split(/\s+/).filter(w => w.length > 0).length;
+            const sendBtn = textarea.nextElementSibling;
+            sendBtn.disabled = words < 3;
+        });
+    });
+
+    document.querySelectorAll('.send-reflection').forEach(btn => {
+        btn.addEventListener('click', () => {
+            alert('Reflection sent!');
+            const form = btn.parentElement;
+            form.style.display = 'none';
+            form.previousElementSibling.previousElementSibling.previousElementSibling.value = '';
+        });
+    });
+
+    document.querySelectorAll('.record-audio').forEach(btn => {
+        btn.addEventListener('click', () => {
+            alert('Audio recording feature coming soon!');
+        });
+    });
+
+    // Perspective Bridge
+    let bridgeData = JSON.parse(localStorage.getItem('bridgeData')) || { opening: null, closing: null };
+    const openingLineEl = document.getElementById('opening-line');
+    const bridgeInput = document.getElementById('bridge-input');
+    const submitBridge = document.getElementById('submit-bridge');
+
+    if (bridgeData.opening && !bridgeData.closing) {
+        openingLineEl.textContent = bridgeData.opening;
+        bridgeInput.placeholder = "Write the closing line";
+    } else {
+        openingLineEl.textContent = "None";
+        bridgeInput.placeholder = "Write a new opening line";
+    }
+
+    submitBridge.addEventListener('click', () => {
+        const text = bridgeInput.value.trim();
+        if (!text) return alert('Please enter some text.');
+        if (!bridgeData.opening) {
+            bridgeData.opening = text;
+            bridgeData.closing = null;
+        } else if (!bridgeData.closing) {
+            bridgeData.closing = text;
+            alert('Story completed: "' + bridgeData.opening + ' ' + bridgeData.closing + '"');
+            bridgeData = { opening: null, closing: null };
+        }
+        localStorage.setItem('bridgeData', JSON.stringify(bridgeData));
+        location.reload();
+    });
+
+    // Refresh Feed
+    document.getElementById('refresh-feed').addEventListener('click', () => {
+        alert('New stories loaded!');
+    });
 </script>
 </body>
 </html>
