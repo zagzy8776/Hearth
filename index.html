@@ -193,23 +193,27 @@
         fetch('https://sheetdb.io/api/v1/tm5l5bvsafoxn')
             .then(res => res.json())
             .then(data => {
+                console.log("Data received from sheet:", data); // This lets us see the data in the console
                 data.forEach(item => {
-                    // This line makes it "human-proof"
-                    // It trims spaces and looks for "live" regardless of capitals
+                    // Check if Status is 'Live' and we have valid coordinates
                     if (item.Status && item.Status.trim().toLowerCase() === "live") {
-                        // Add the marker to the map
-                        L.marker([item.Lat, item.Lng]).addTo(map)
-                         .bindPopup(`
-                            <div style="font-family: 'Cormorant Garamond', serif; padding: 10px;">
-                                <i style="color: #666;">${item.Location}</i><br>
-                                <p style="font-size: 1.1em; margin-top: 5px;">"${item.Story}"</p>
-                                <small style="display: block; text-align: right; color: #999;">${item.Date}</small>
-                            </div>
-                         `);
+                        const lat = parseFloat(item.Lat);
+                        const lng = parseFloat(item.Lng);
+                        if (!isNaN(lat) && !isNaN(lng)) {
+                            L.marker([lat, lng]).addTo(map)
+                             .bindPopup(`
+                                <div style="font-family: 'Cormorant Garamond', serif; min-width: 150px;">
+                                    <i style="color: #666;">${item.Location}</i><br>
+                                    <p style="font-size: 1.1em; margin-top: 5px;">"${item.Story}"</p>
+                                </div>
+                             `);
+                        } else {
+                            console.warn("Skipping item due to invalid coordinates:", item);
+                        }
                     }
                 });
             })
-            .catch(err => console.error("Error loading the Thread:", err));
+            .catch(err => console.error("Error loading markers:", err));
 
         // 5. Let the user "Touch" the map
         map.on('click', function(e) {
