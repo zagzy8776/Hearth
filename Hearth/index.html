@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Human Thread</title>
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:italic,wght@400;600&family=EB+Garamond&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="waiting-room" class="modal" style="display:block;">
+    <div class="modal-content" style="text-align:center; background: var(--paper);">
+        <p>Take a moment to breathe...</p>
+        <div id="candle" style="font-size: 4em; animation: flicker 2s infinite;">🕯️</div>
+        <p id="countdown">30</p>
+    </div>
+</div>
+
+<nav>
+    <div class="logo">The Human Thread</div>
+    <div>
+        <button id="text-size-toggle" onclick="toggleTextSize()">A</button>
+        <button id="theme-toggle" onclick="toggleTheme()">Noon</button>
+        <button id="sound-toggle" onclick="toggleSound()">Listen to the fire</button>
+        <button id="mirror-btn" onclick="openMirror()">Mirror</button>
+        <button id="hearth-btn" onclick="toggleHearth()">💤</button>
+        <div id="moon-phase"></div>
+    </div>
+</nav>
+
+<main>
+    <section class="hero">
+        <h1>The Human Thread</h1>
+        <p>A sanctuary built to remind us that we are more than data points.</p>
+        <p id="daily-prompt" style="font-style: italic; color: var(--secondary); margin-top: 1rem;"></p>
+    </section>
+
+    <section id="map-section">
+        <div id="map"></div>
+        <p id="trace-counter">Gathering the thread...</p>
+        <div id="presence-indicator" style="position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.5); color: white; padding: 5px 10px; border-radius: 20px; font-size: 0.8em;">3 other souls are here with you</div>
+        <button id="memory-lane-btn" onclick="openMemoryLane()" style="position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.5); color: white; border: none; padding: 5px 10px; border-radius: 20px; font-size: 0.8em; cursor: pointer;">🗝️ Memory Lane</button>
+    </section>
+
+    <section id="sand-script">
+        <h3><i class="fas fa-hourglass-half"></i> The Sand Script</h3>
+        <p>Write what you must let go of. Choose fade time and begin.</p>
+        <div class="controls">
+            <input type="radio" name="fade-time" value="10">10s
+            <input type="radio" name="fade-time" value="60" checked>60s
+            <textarea id="sand-text"></textarea>
+            <p id="mirror-prompt" style="display:none;">Now, write something kind to yourself.</p>
+        </div>
+        <div class="buttons">
+            <button class="primary-btn" onclick="beginFade()">Begin the Fade</button>
+            <button class="primary-btn" onclick="dropWorry()">Drop into Ocean</button>
+        </div>
+    </section>
+
+    <section id="breathing-room">
+        <h3><i class="fas fa-lungs"></i> The Breathing Room</h3>
+        <p>Center yourself. Follow the guide.</p>
+        <div id="breathing-container">
+            <div id="breathing-circle"></div>
+            <p id="breathing-text">Begin</p>
+        </div>
+        <div class="buttons">
+            <button id="breathing-btn" class="primary-btn" onclick="toggleBreathing()">Start</button>
+        </div>
+    </section>
+
+
+
+    <section id="perspective-bridge">
+        <h3><i class="fas fa-bridge"></i> The Perspective Bridge</h3>
+        <p>This section is about the beauty of incomplete things. Co-authorship: It allows a stranger to start a sentence or a thought, and another stranger—perhaps thousands of miles away—to finish it.</p>
+        <div class="letter-section">
+            <textarea id="start-thought" placeholder="Start a sentence or thought"></textarea>
+            <div id="finish-section" style="display:none;">
+                <h4>Finish a Thought</h4>
+                <p id="started-thought"></p>
+                <textarea id="finish-text" placeholder="Complete the thought..."></textarea>
+                <button class="primary-btn" onclick="finishThought()">Complete Thought</button>
+            </div>
+        </div>
+        <div class="buttons">
+            <button class="primary-btn" onclick="sendStartThought()">Start Thought</button>
+            <button class="primary-btn" onclick="loadStartedThought()">Find a Thought to Finish</button>
+        </div>
+        <div id="received-letter" style="display:none;">
+            <h4>A Completed Thought</h4>
+            <p id="thought-content"></p>
+        </div>
+    </section>
+
+    <section id="future-self">
+        <h3>Letter to Your Future Self</h3>
+        <p>Write a note to the person you will be in a year.</p>
+        <input type="email" id="future-email" placeholder="Your email">
+        <input type="date" id="wake-date">
+        <textarea id="future-note" placeholder="Your message..."></textarea>
+        <button class="primary-btn" onclick="sendFutureLetter()">Send to Future</button>
+        <p style="font-size: 0.8em; color: var(--secondary); margin-top: 1rem;">Write this on the device you use most; it will remember you when the time comes.</p>
+    </section>
+
+    <section id="unsent-letter">
+        <h3>The Unsent Letter</h3>
+        <p>Write the letter you'll never send.</p>
+        <textarea id="unsent-text" placeholder="To whom it may concern..."></textarea>
+        <button class="primary-btn" onclick="sendUnsentLetter()">Release the Letter</button>
+    </section>
+
+    <section id="lunar-journal">
+        <h3><i class="fas fa-moon"></i> Lunar Journal</h3>
+        <p>Reflect under the current moon phase. <span id="current-moon-phase"></span></p>
+        <div id="lunar-prompt"></div>
+        <textarea id="lunar-entry" placeholder="What does this moon phase whisper to you?"></textarea>
+        <div class="buttons">
+            <button class="primary-btn" onclick="saveLunarEntry()">Save Reflection</button>
+            <button class="primary-btn" onclick="viewLunarHistory()">Past Reflections</button>
+        </div>
+        <div id="lunar-history" style="display:none; margin-top: 2rem;">
+            <h4>Your Lunar Journey</h4>
+            <div id="lunar-entries"></div>
+        </div>
+    </section>
+
+    <section id="ritual-builder">
+        <h3><i class="fas fa-sparkles"></i> Ritual Builder</h3>
+        <p>Create personalized rituals for your daily sanctuary practice.</p>
+        <div class="ritual-creator">
+            <input type="text" id="ritual-name" placeholder="Ritual name (e.g., Morning Gratitude)">
+            <select id="ritual-time">
+                <option value="morning">Morning</option>
+                <option value="evening">Evening</option>
+                <option value="anytime">Anytime</option>
+            </select>
+            <textarea id="ritual-steps" placeholder="Describe your ritual steps..."></textarea>
+            <div class="buttons">
+                <button class="primary-btn" onclick="saveRitual()">Create Ritual</button>
+                <button class="primary-btn" onclick="viewRituals()">My Rituals</button>
+            </div>
+        </div>
+        <div id="rituals-list" style="display:none; margin-top: 2rem;">
+            <h4>Your Sacred Rituals</h4>
+            <div id="rituals-container"></div>
+        </div>
+    </section>
+
+    <section id="growth-garden">
+        <h3><i class="fas fa-seedling"></i> Growth Garden</h3>
+        <p>Watch your mindfulness practice bloom. Each completed ritual grows your garden.</p>
+        <div id="garden-container" style="text-align: center; min-height: 300px; position: relative; overflow: hidden;">
+            <div id="garden-plants"></div>
+            <div id="garden-stats" style="position: absolute; bottom: 10px; left: 10px; background: rgba(0,0,0,0.7); color: white; padding: 10px; border-radius: 8px; font-size: 0.9rem;">
+                Rituals Completed: <span id="total-rituals">0</span><br>
+                Garden Level: <span id="garden-level">Seedling</span>
+            </div>
+        </div>
+        <div class="buttons" style="margin-top: 1rem;">
+            <button class="primary-btn" onclick="waterGarden()">Water Garden</button>
+            <button class="primary-btn" onclick="resetGarden()">Start Fresh</button>
+        </div>
+    </section>
+
+    <button class="primary-btn" onclick="goodbye()">Go Outside</button>
+    <button id="export-btn" onclick="exportTraces()" style="margin-top: 2rem; background: transparent; color: var(--secondary); border: 1px solid var(--border); padding: 0.5rem 1rem; border-radius: 8px; font-size: 0.9rem;">Download my Traces</button>
+</main>
+
+<audio id="ambient-audio" loop preload="none">
+    <source src="https://www.soundjay.com/misc/sounds/fireplace-1.mp3" type="audio/mpeg">
+    Your browser does not support the audio element.
+</audio>
+
+<div id="writing-desk-modal" class="modal">
+    <div class="modal-content">
+        <h2>Leave a Trace</h2>
+        <div class="input-group">
+            <input type="text" id="user-location" placeholder="City, Country">
+            <select id="user-category">
+                <option value="Joy">Joy</option>
+                <option value="Loss">Loss</option>
+                <option value="Wonder">Wonder</option>
+            </select>
+            <input type="text" id="user-name" placeholder="Your name (optional)">
+            <input type="text" id="user-photourl" placeholder="Photo URL (optional)">
+        </div>
+        <textarea id="user-story" placeholder="What is the story of this place?"></textarea>
+        <input type="hidden" id="user-coords">
+        <button class="primary-btn" onclick="submitToSheet()">Place on Map</button>
+        <button onclick="closeDesk()">Cancel</button>
+    </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+<script>
+    const api_url = 'https://sheetdb.io/api/v1/tm5l5bvsafoxn';
+    const map = L.map('map').setView([20, 0], 2);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png').addTo(map);
+
+    const markers = L.markerClusterGroup();
+    map.addLayer(markers);
+
+    // Day/Night Cycle
+    const hour = new Date().getHours();
+    if (hour >= 6 && hour < 18) {
+        document.documentElement.style.setProperty('--paper', '#f9f7f1');
+        document.documentElement.style.setProperty('--ink', '#2c2c2c');
+    } else {
+        document.documentElement.style.setProperty('--paper', '#2c2c2c');
+        document.documentElement.style.setProperty('--ink', '#f9f7f1');
+    }
+
+    // Shareable Links
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has('lat') && urlParams.has('lng')) {
+        map.setView([urlParams.get('lat'), urlParams.get('lng')], 10);
+    }
+
+
+
+    function hug(btn, id) {
+        const current = parseInt(btn.textContent.match(/\d+/)[0]);
+        fetch(api_url + '/' + id, {
+            method: 'PATCH',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({data: {Hugs: current + 1}})
+        }).then(() => {
+            btn.textContent = `Someone felt this (${current + 1})`;
+        });
+    }
+
+    map.on('click', function(e) {
+        document.getElementById('user-coords').value = e.latlng.lat + "," + e.latlng.lng;
+        document.getElementById('writing-desk-modal').style.display = 'block';
+    });
+
+    function closeDesk() { document.getElementById('writing-desk-modal').style.display = 'none'; }
+
+    function submitToSheet() {
+        const coords = document.getElementById('user-coords').value.split(',');
+        fetch(api_url, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({data: [{
+                Story: document.getElementById('user-story').value,
+                Location: document.getElementById('user-location').value,
+                Category: document.getElementById('user-category').value,
+                Name: document.getElementById('user-name').value,
+                PhotoURL: document.getElementById('user-photourl').value,
+                Lat: coords[0], Lng: coords[1],
+                Date: new Date().toLocaleDateString(), Status: "",
+                Hugs: 0
+            }]})
+        }).then(() => { alert("Saved to the ledger."); location.reload(); });
+    }
+
+    function beginFade() {
+        const el = document.getElementById('sand-text');
+        const time = document.querySelector('input[name="fade-time"]:checked').value * 1000;
+        el.style.animation = `ash ${time}ms linear forwards`;
+        setTimeout(() => { el.value = ""; el.style.animation = ""; document.getElementById('mirror-prompt').style.display = 'block'; }, time);
+    }
+
+    function goodbye() {
+        document.querySelector('main').style.display = 'none';
+        document.body.innerHTML = '<div style="text-align:center; padding:50px; font-size:2rem;">Go outside and breathe.</div>';
+    }
+
+    loadMarkers();
+
+    function getMoonPhase() {
+        const now = new Date();
+        const cycle = 29.53;
+        const newMoon = new Date(2023, 0, 1);
+        const days = (now - newMoon) / (1000 * 60 * 60 * 24);
+        const phase = (days % cycle) / cycle;
+        const phases = ['🌑', '🌒', '🌓', '🌔', '🌕', '🌖', '🌗', '🌘'];
+        const index = Math.floor(phase * 8) % 8;
+        return phases[index];
+    }
+
+    document.getElementById('moon-phase').innerText = getMoonPhase();
+
+    let hearthPlaying = false;
+    function toggleHearth() {
+        hearthPlaying = !hearthPlaying;
+        document.getElementById('hearth-btn').textContent = hearthPlaying ? '🔥' : '💤';
+    }
+
+    window.addEventListener('load', () => {
+        document.body.classList.add('ink-bleed');
+        document.querySelector('main').classList.add('fade-in');
+        let countdown = 30;
+        const countdownEl = document.getElementById('countdown');
+        const interval = setInterval(() => {
+            countdown--;
+            countdownEl.textContent = countdown;
+            if (countdown <= 0) {
+                clearInterval(interval);
+                document.getElementById('waiting-room').style.display = 'none';
+            }
+        }, 1000);
+
+        // Check for wake up ritual
+        const savedKey = localStorage.getItem('hearth_key');
+        const wakeUpAt = new Date(localStorage.getItem('hearth_wake_date'));
+        const today = new Date();
+
+        if (savedKey && wakeUpAt && today >= wakeUpAt) {
+            showWakeUpRitual(savedKey);
+        }
+
+        // Set daily prompt
+        const dailyPrompts = [
+            "What did the air feel like when you stepped outside today?",
+            "Is there a song currently stuck in your heart?",
+            "What is one thing you are forgiving yourself for this morning?",
+            "What small act of kindness did you witness today?",
+            "What texture brings you comfort?",
+            "What is a question you've been carrying?",
+            "What does your body need to hear right now?"
+        ];
+        const dayOfWeek = new Date().getDay(); // 0 = Sunday
+        document.getElementById('daily-prompt').textContent = dailyPrompts[dayOfWeek];
+
+        // Initialize lunar journal
+        initializeLunarJournal();
+    });
+
+    function sendStartThought() {
+        const start = document.getElementById('start-thought').value.trim();
+        if (start) {
+            fetch(api_url, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({data: [{Start: start, Type: 'StartedThought', Date: new Date().toISOString()}]})
+            }).then(() => {
+                alert("Thought started in the bridge.");
+                document.getElementById('start-thought').value = '';
+                loadCompletedThought();
+            });
+        }
+    }
+
+    function loadStartedThought() {
+        fetch(api_url + '?Type=StartedThought').then(res => res.json()).then(data => {
+            if (data.length > 0) {
+                const random = data[Math.floor(Math.random() * data.length)];
+                document.getElementById('started-thought').innerText = random.Start;
+                document.getElementById('finish-section').style.display = 'block';
+            }
+        });
+    }
+
+    function finishThought() {
+        const start = document.getElementById('started-thought').innerText;
+        const finish = document.getElementById('finish-text').value.trim();
+        if (finish) {
+            fetch(api_url, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({data: [{Start: start, Finish: finish, Type: 'CompletedThought', Date: new Date().toISOString()}]})
+            }).then(() => {
+                alert("Thought completed in the bridge.");
+                document.getElementById('finish-text').value = '';
+                document.getElementById('finish-section').style.display = 'none';
+                loadCompletedThought();
+            });
+        }
+    }
+
+    function loadCompletedThought() {
+        fetch(api_url + '?Type=CompletedThought').then(res => res.json()).then(data => {
+            if (data.length > 0) {
+                const random = data[Math.floor(Math.random() * data.length)];
+                document.getElementById('thought-content').innerText = random.Start + ' ' + random.Finish;
+                document.getElementById('received-letter').style.display = 'block';
+            }
+        });
+    }
+
+    loadCompletedThought();
+
+    function dropWorry() {
+        const el = document.getElementById('sand-text');
+        el.style.animation = 'drop 3s linear forwards';
+        setTimeout(() => { el.value = ""; el.style.animation = ""; }, 3000);
+    }
+
+    let breathingInterval;
+    let isBreathing = false;
+
+    function toggleBreathing() {
+        const breathingText = document.getElementById('breathing-text');
+        const breathingCircle = document.getElementById('breathing-circle');
+        const breathingBtn = document.getElementById('breathing-btn');
+        isBreathing = !isBreathing;
+        if (isBreathing) {
+            breathingBtn.textContent = 'Stop';
+            breathingCircle.classList.add('breathing');
+            breathe();
+            breathingInterval = setInterval(breathe, 8000); // 4s in, 4s out
+        } else {
+            breathingBtn.textContent = 'Start';
+            breathingCircle.classList.remove('breathing');
+            clearInterval(breathingInterval);
+            breathingText.textContent = 'Begin';
+        }
+    }
+
+    function breathe() {
+        const breathingText = document.getElementById('breathing-text');
+        breathingText.textContent = 'Breathe In...';
+        setTimeout(() => {
+            breathingText = document.getElementById('breathing-text');
+            breathingText.textContent = 'Breathe Out...';
+        }, 4000);
+    }
+
+    let currentTheme = 'noon';
+    function toggleTheme() {
+        const btn = document.getElementById('theme-toggle');
+        if (currentTheme === 'noon') {
+            currentTheme = 'twilight';
+            btn.textContent = 'Twilight';
+            document.documentElement.style.setProperty('--paper', '#2c2c2c');
+            document.documentElement.style.setProperty('--ink', '#f9f7f1');
+        } else {
+            currentTheme = 'noon';
+            btn.textContent = 'Noon';
+            document.documentElement.style.setProperty('--paper', '#f9f7f1');
+            document.documentElement.style.setProperty('--ink', '#2c2c2c');
+        }
+    }
+
+    let largeText = false;
+    function toggleTextSize() {
+        const btn = document.getElementById('text-size-toggle');
+        largeText = !largeText;
+        btn.textContent = largeText ? 'A+' : 'A';
+        document.body.style.fontSize = largeText ? '1.1em' : '1em';
+    }
+
+    let soundPlaying = false;
+    function toggleSound() {
+        const audio = document.getElementById('ambient-audio');
+        const btn = document.getElementById('sound-toggle');
+        if (soundPlaying) {
+            audio.pause();
+            btn.textContent = 'Listen to the fire';
+        } else {
+            audio.play();
+            btn.textContent = 'Silence the fire';
+        }
+        soundPlaying = !soundPlaying;
+    }
+
+    let tracesData = [];
+    function loadMarkers() {
+        fetch(api_url).then(res => res.json()).then(data => {
+            tracesData = data.filter(i => i.Status && i.Status.trim().toLowerCase() === 'live');
+            if (tracesData.length === 0) {
+                // If no 'live' status, show all entries for testing
+                tracesData = data.filter(i => i.Lat && i.Lng);
+            }
+            tracesData.forEach(item => {
+                const color = {Joy: '#f6e05e', Loss: '#b794f6', Wonder: '#63b3ed'}[item.Category] || '#f6e05e';
+                const categoryClass = item.Category ? item.Category.toLowerCase() : 'joy';
+                const icon = L.divIcon({ className: `map-pin map-pin-${categoryClass}`, iconSize: [20, 20], html: `<svg width="20" height="20" viewBox="0 0 20 20"><path d="M10 0C6.13 0 3 3.13 3 7c0 4.17 4.42 9.92 6.24 12.11.4.48 1.12.48 1.52 0C12.58 16.92 17 11.17 17 7c0-3.87-3.13-7-7-7z" fill="${color}"/></svg>` });
+                const marker = L.marker([item.Lat, item.Lng], {icon: icon});
+                const date = new Date(item.Date);
+                const now = new Date();
+                const months = (now - date) / (1000 * 60 * 60 * 24 * 30);
+                const moons = Math.floor(months);
+                marker.bindPopup(`<div style="font-family:serif; color:white;">${item.PhotoURL ? '<img src="' + item.PhotoURL + '" style="max-width:100px; margin-bottom:10px;"><br>' : ''}<b>${item.Location}</b><br>"${item.Story}"<br><small style="font-family: 'Dancing Script', cursive;">${item.Name || 'Anonymous'}</small><br><small>${moons} moons ago</small><br><button onclick="hug(this, '${item.id}')">Someone felt this (${item.Hugs || 0})</button></div>`);
+                markers.addLayer(marker);
+            });
+            document.getElementById('trace-counter').innerText = tracesData.length + " Traces in the Thread";
+        });
+    }
+
+    function exportTraces() {
+        const dataStr = JSON.stringify(tracesData, null, 2);
+        const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+        const exportFileDefaultName = 'my-traces.json';
+        const linkElement = document.createElement('a');
+        linkElement.setAttribute('href', dataUri);
+        linkElement.setAttribute('download', exportFileDefaultName);
+        linkElement.click();
+    }
+
+    function sendFutureLetter() {
+        const memoryKey = "future_link_" + Date.now();
+        const wakeDate = document.getElementById('wake-date').value;
+        const note = document.getElementById('future-note').value;
+
+        if (!wakeDate || !note) {
+            alert("Please fill in the date and message.");
+            return;
+        }
+
+        // Save to localStorage
+        localStorage.setItem('hearth_key', memoryKey);
+        localStorage.setItem('hearth_wake_date', wakeDate);
+
+        // Send to sheet
+        fetch(api_url, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({data: [{
+                Note: note,
+                WakeDate: wakeDate,
+                Key: memoryKey,
+                Type: 'FutureLetter',
+                Date: new Date().toISOString()
+            }]})
+        }).then(() => {
+            alert("Letter scheduled for future delivery.");
+            document.getElementById('future-note').value = '';
+            document.getElementById('wake-date').value = '';
+        });
+    }
+
+    function sendUnsentLetter() {
+        alert("Letter released into the ether.");
+    }
+
+    function openMirror() {
+        navigator.mediaDevices.getUserMedia({video: true}).then(stream => {
+            const modal = document.createElement('div');
+            modal.className = 'modal';
+            modal.innerHTML = '<div class="modal-content" style="text-align:center;"><p>This person deserves peace.</p><video id="mirror-video" autoplay style="width:100%; max-width:400px;"></video><button onclick="closeMirror()">Close</button></div>';
+            document.body.appendChild(modal);
+            document.getElementById('mirror-video').srcObject = stream;
+        });
+    }
+
+    function closeMirror() {
+        document.querySelector('.modal').remove();
+    }
+
+    function showWakeUpRitual(savedKey) {
+        const modal = document.createElement('div');
+        modal.className = 'modal';
+        modal.innerHTML = '<div class="modal-content" style="text-align:center;"><p>The letter you wrote to yourself has bloomed. Would you like to read it?</p><button onclick="readLetter(\'' + savedKey + '\')">Yes</button><button onclick="dismissRitual()">Not now</button></div>';
+        document.body.appendChild(modal);
+    }
+
+    function readLetter(key) {
+        // Fetch from sheet using key
+        fetch(api_url + '?Key=' + key).then(res => res.json()).then(data => {
+            if (data.length > 0) {
+                const letter = data[0];
+                const modal = document.createElement('div');
+                modal.className = 'modal';
+                modal.innerHTML = '<div class="modal-content"><h3>Your Letter from the Past</h3><p>' + letter.Note + '</p><button onclick="closeModal()">Close</button></div>';
+                document.body.appendChild(modal);
+            }
+        });
+        // Clear localStorage after reading
+        localStorage.removeItem('hearth_key');
+        localStorage.removeItem('hearth_wake_date');
+        document.querySelector('.modal').remove();
+    }
+
+    function dismissRitual() {
+        document.querySelector('.modal').remove();
+    }
+
+    function closeModal() {
+        document.querySelector('.modal').remove();
+    }
+
+    function openMemoryLane() {
+        if (tracesData.length > 0) {
+            const randomTrace = tracesData[Math.floor(Math.random() * tracesData.length)];
+            const popupContent = `<div style="font-family:serif; color:white;">${randomTrace.PhotoURL ? '<img src="' + randomTrace.PhotoURL + '" style="max-width:100px; margin-bottom:10px;"><br>' : ''}<b>${randomTrace.Location}</b><br>"${randomTrace.Story}"<br><small style="font-family: 'Dancing Script', cursive;">${randomTrace.Name || 'Anonymous'}</small><br><small>${Math.floor((new Date() - new Date(randomTrace.Date)) / (1000 * 60 * 60 * 24 * 30))} moons ago</small><br><button onclick="hug(this, '${randomTrace.id}')">Someone felt this (${randomTrace.Hugs || 0})</button></div>`;
+            map.openPopup(popupContent, [randomTrace.Lat, randomTrace.Lng]);
+        }
+    }
+
+    // Lunar Journal Functions
+    function getDetailedMoonPhase() {
+        const now = new Date();
+        const cycle = 29.53;
+        const newMoon = new Date(2023, 0, 1);
+        const days = (now - newMoon) / (1000 * 60 * 60 * 24);
+        const phase = (days % cycle) / cycle;
+
+        const phases = [
+            { name: 'New Moon', emoji: '🌑', prompt: 'What new beginning calls to you?' },
+            { name: 'Waxing Crescent', emoji: '🌒', prompt: 'What seeds are you planting?' },
+            { name: 'First Quarter', emoji: '🌓', prompt: 'What challenges are you embracing?' },
+            { name: 'Waxing Gibbous', emoji: '🌔', prompt: 'How are you building momentum?' },
+            { name: 'Full Moon', emoji: '🌕', prompt: 'What is reaching its peak in your life?' },
+            { name: 'Waning Gibbous', emoji: '🌖', prompt: 'What are you ready to release?' },
+            { name: 'Last Quarter', emoji: '🌗', prompt: 'What lessons are you integrating?' },
+            { name: 'Waning Crescent', emoji: '🌘', prompt: 'What rest do you need?' }
+        ];
+
+        const index = Math.floor(phase * 8) % 8;
+        return phases[index];
+    }
+
+    function initializeLunarJournal() {
+        const moonData = getDetailedMoonPhase();
+        document.getElementById('current-moon-phase').innerHTML = `${moonData.emoji} ${moonData.name}`;
+        document.getElementById('lunar-prompt').innerHTML = `<em>${moonData.prompt}</em>`;
+    }
+
+    function saveLunarEntry() {
+        const entry = document.getElementById('lunar-entry').value.trim();
+        if (!entry) {
+            alert('Please write something before saving.');
+            return;
+        }
+
+        const moonData = getDetailedMoonPhase();
+        const lunarEntry = {
+            date: new Date().toISOString(),
+            moonPhase: moonData.name,
+            moonEmoji: moonData.emoji,
+            prompt: moonData.prompt,
+            reflection: entry
+        };
+
+        const existingEntries = JSON.parse(localStorage.getItem('lunarJournal') || '[]');
+        existingEntries.push(lunarEntry);
+        localStorage.setItem('lunarJournal', JSON.stringify(existingEntries));
+
+        document.getElementById('lunar-entry').value = '';
+        alert('Reflection saved under the ' + moonData.name + '.');
+    }
+
+    function viewLunarHistory() {
+        const historyDiv = document.getElementById('lunar-history');
+        const entriesDiv = document.getElementById('lunar-entries');
+
+        const entries = JSON.parse(localStorage.getItem('lunarJournal') || '[]');
+
+        if (entries.length === 0) {
+            entriesDiv.innerHTML = '<p>No reflections yet. Start your lunar journey.</p>';
+        } else {
+            entriesDiv.innerHTML = entries.reverse().map(entry => `
+                <div style="border: 1px solid var(--border); border-radius: 8px; padding: 1rem; margin-bottom: 1rem; background: var(--paper);">
+                    <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                        <span style="font-size: 1.5rem;">${entry.moonEmoji}</span>
+                        <strong>${entry.moonPhase}</strong>
+                        <small style="color: var(--secondary); margin-left: auto;">${new Date(entry.date).toLocaleDateString()}</small>
+                    </div>
+                    <p style="font-style: italic; color: var(--secondary); margin-bottom: 0.5rem;">${entry.prompt}</p>
+                    <p>${entry.reflection}</p>
+                </div>
+            `).join('');
+        }
+
+        historyDiv.style.display = historyDiv.style.display === 'none' ? 'block' : 'none';
+    }
+
+    // Ritual Builder Functions
+    function saveRitual() {
+        const name = document.getElementById('ritual-name').value.trim();
+        const time = document.getElementById('ritual-time').value;
+        const steps = document.getElementById('ritual-steps').value.trim();
+
+        if (!name || !steps) {
+            alert('Please fill in the ritual name and steps.');
+            return;
+        }
+
+        const ritual = {
+            id: Date.now(),
+            name: name,
+            time: time,
+            steps: steps,
+            created: new Date().toISOString(),
+            completedCount: 0,
+            lastCompleted: null
+        };
+
+        const existingRituals = JSON.parse(localStorage.getItem('hearthRituals') || '[]');
+        existingRituals.push(ritual);
+        localStorage.setItem('hearthRituals', JSON.stringify(existingRituals));
+
+        document.getElementById('ritual-name').value = '';
+        document.getElementById('ritual-steps').value = '';
+        alert('Ritual "' + name + '" created! Find it in My Rituals.');
+    }
+
+    function viewRituals() {
+        const ritualsList = document.getElementById('rituals-list');
+        const container = document.getElementById('rituals-container');
+
+        const rituals = JSON.parse(localStorage.getItem('hearthRituals') || '[]');
+
+        if (rituals.length === 0) {
+            container.innerHTML = '<p>No rituals yet. Create your first sacred practice.</p>';
+        } else {
+            container.innerHTML = rituals.map(ritual => `
+                <div style="border: 1px solid var(--border); border-radius: 8px; padding: 1rem; margin-bottom: 1rem; background: var(--paper);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                        <h4 style="margin: 0; color: var(--accent);">${ritual.name}</h4>
+                        <small style="color: var(--secondary);">${ritual.time} ritual</small>
+                    </div>
+                    <p style="margin-bottom: 1rem; white-space: pre-line;">${ritual.steps}</p>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <small style="color: var(--secondary);">Completed ${ritual.completedCount} times</small>
+                        <button class="primary-btn" onclick="completeRitual(${ritual.id})" style="font-size: 0.9rem; padding: 0.5rem 1rem;">Complete Ritual</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        ritualsList.style.display = ritualsList.style.display === 'none' ? 'block' : 'none';
+    }
+
+    function completeRitual(id) {
+        const rituals = JSON.parse(localStorage.getItem('hearthRituals') || '[]');
+        const ritualIndex = rituals.findIndex(r => r.id === id);
+
+        if (ritualIndex !== -1) {
+            rituals[ritualIndex].completedCount++;
+            rituals[ritualIndex].lastCompleted = new Date().toISOString();
+            localStorage.setItem('hearthRituals', JSON.stringify(rituals));
+            alert('Ritual completed! Your practice grows stronger.');
+            viewRituals(); // Refresh the display
+            updateGarden(); // Update garden growth
+        }
+    }
+
+    // Growth Garden Functions
+    function initializeGarden() {
+        updateGarden();
+    }
+
+    function updateGarden() {
+        const rituals = JSON.parse(localStorage.getItem('hearthRituals') || '[]');
+        const totalCompletions = rituals.reduce((sum, ritual) => sum + ritual.completedCount, 0);
+
+        document.getElementById('total-rituals').textContent = totalCompletions;
+
+        // Determine garden level
+        let level = 'Seedling';
+        if (totalCompletions >= 50) level = 'Blooming Garden';
+        else if (totalCompletions >= 25) level = 'Thriving Garden';
+        else if (totalCompletions >= 10) level = 'Growing Garden';
+        else if (totalCompletions >= 5) level = 'Sprouting Garden';
+        else if (totalCompletions >= 1) level = 'Young Garden';
+
+        document.getElementById('garden-level').textContent = level;
+
+        // Generate plants based on completions
+        renderGarden(totalCompletions);
+    }
+
+    function renderGarden(completions) {
+        const container = document.getElementById('garden-plants');
+        container.innerHTML = '';
+
+        if (completions === 0) {
+            container.innerHTML = '<div style="font-size: 4rem; opacity: 0.5;">🌱</div><p style="color: var(--secondary);">Complete rituals to watch your garden grow</p>';
+            return;
+        }
+
+        // Create different plants based on completion levels
+        const plants = [];
+        const maxPlants = Math.min(Math.floor(completions / 2) + 3, 15); // Max 15 plants
+
+        for (let i = 0; i < maxPlants; i++) {
+            const plantType = getPlantType(completions, i);
+            const size = Math.min(1 + (completions / 10), 2); // Grow with completions
+            const delay = Math.random() * 2; // Stagger animations
+
+            plants.push(`
+                <div class="garden-plant" style="
+                    position: absolute;
+                    font-size: ${size}rem;
+                    left: ${10 + Math.random() * 80}%;
+                    bottom: 20px;
+                    animation: grow 2s ease-out ${delay}s both;
+                    transform-origin: bottom center;
+                ">
+                    ${plantType}
+                </div>
+            `);
+        }
+
+        container.innerHTML = plants.join('');
+
+        // Add some floating elements for magic
+        if (completions >= 10) {
+            for (let i = 0; i < 3; i++) {
+                const floatingElement = ['✨', '🌸', '🦋'][i % 3];
+                container.innerHTML += `
+                    <div class="floating-element" style="
+                        position: absolute;
+                        font-size: 1.5rem;
+                        left: ${20 + Math.random() * 60}%;
+                        top: ${20 + Math.random() * 40}%;
+                        animation: float 3s ease-in-out ${Math.random() * 2}s infinite;
+                        pointer-events: none;
+                    ">
+                        ${floatingElement}
+                    </div>
+                `;
+            }
+        }
+    }
+
+    function getPlantType(completions, index) {
+        const plantTypes = ['🌱', '🌿', '🌾', '🌸', '🌺', '🌻', '🌷', '🌹', '🌼', '🌻', '🌺', '🌸', '🌷', '🌹', '🌼'];
+
+        if (completions >= 25) {
+            return ['🌳', '🌲', '🌴', '🌵', '🌲'][index % 5]; // Trees for high completions
+        } else if (completions >= 15) {
+            return ['🌸', '🌺', '🌻', '🌷', '🌹'][index % 5]; // Flowers for medium-high
+        } else if (completions >= 5) {
+            return ['🌿', '🌾', '🌱', '🌿', '🌾'][index % 5]; // Herbs for medium
+        } else {
+            return '🌱'; // Seedlings for low
+        }
+    }
+
+    function waterGarden() {
+        const container = document.getElementById('garden-plants');
+
+        // Add water droplets animation
+        for (let i = 0; i < 10; i++) {
+            const droplet = document.createElement('div');
+            droplet.textContent = '💧';
+            droplet.style.position = 'absolute';
+            droplet.style.fontSize = '1.5rem';
+            droplet.style.left = Math.random() * 100 + '%';
+            droplet.style.top = '-20px';
+            droplet.style.animation = `fall 1s ease-in ${Math.random() * 0.5}s both`;
+            droplet.style.pointerEvents = 'none';
+
+            container.appendChild(droplet);
+
+            // Remove droplet after animation
+            setTimeout(() => droplet.remove(), 1500);
+        }
+
+        alert('Your garden drinks deeply! 🌧️');
+    }
+
+    function resetGarden() {
+        if (confirm('Are you sure you want to start your garden fresh? This will reset all ritual completion counts.')) {
+            const rituals = JSON.parse(localStorage.getItem('hearthRituals') || '[]');
+            rituals.forEach(ritual => {
+                ritual.completedCount = 0;
+                ritual.lastCompleted = null;
+            });
+            localStorage.setItem('hearthRituals', JSON.stringify(rituals));
+            updateGarden();
+            alert('Garden reset! New growth awaits. 🌱');
+        }
+    }
+
+    // Initialize garden on load
+    window.addEventListener('load', () => {
+        // ... existing load code ...
+        initializeGarden();
+    });
+
+
+
+</script>
+</body>
+</html>
