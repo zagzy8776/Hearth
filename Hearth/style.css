@@ -534,6 +534,109 @@ section p {
     }
 }
 
+/* Footer */
+footer {
+    background: var(--paper);
+    border-top: 1px solid var(--border);
+    padding: 4rem 2rem 2rem;
+    margin-top: 6rem;
+    text-align: center;
+}
+
+.footer-content {
+    max-width: 1000px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 3rem;
+    align-items: start;
+}
+
+.footer-quote {
+    text-align: center;
+}
+
+.footer-quote blockquote {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+    font-style: italic;
+    color: var(--ink);
+    margin: 0 0 1rem 0;
+    line-height: 1.4;
+    position: relative;
+}
+
+.footer-quote blockquote::before,
+.footer-quote blockquote::after {
+    content: '"';
+    font-size: 3rem;
+    color: var(--accent);
+    position: absolute;
+    line-height: 1;
+}
+
+.footer-quote blockquote::before {
+    top: -0.5rem;
+    left: -1rem;
+}
+
+.footer-quote blockquote::after {
+    bottom: -1.5rem;
+    right: -1rem;
+}
+
+.footer-quote cite {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.9rem;
+    color: var(--secondary);
+    font-style: normal;
+}
+
+.footer-links p {
+    font-size: 1rem;
+    color: var(--secondary);
+    margin: 0.5rem 0;
+    line-height: 1.5;
+}
+
+.footer-moon {
+    text-align: center;
+}
+
+.footer-moon span {
+    font-size: 2rem;
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.footer-moon p {
+    font-size: 0.9rem;
+    color: var(--secondary);
+    font-style: italic;
+    margin: 0;
+}
+
+@media (max-width: 768px) {
+    footer {
+        padding: 3rem 1rem 1.5rem;
+        margin-top: 4rem;
+    }
+
+    .footer-content {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+
+    .footer-quote blockquote {
+        font-size: 1.2rem;
+    }
+
+    .footer-quote blockquote::before,
+    .footer-quote blockquote::after {
+        font-size: 2rem;
+    }
+}
+
 @media (max-width: 480px) {
     .hero h1 {
         font-size: 2.5rem;
@@ -545,5 +648,13 @@ section p {
 
     .primary-btn {
         width: 100%;
+    }
+
+    .footer-quote blockquote {
+        font-size: 1.1rem;
+    }
+
+    .footer-moon span {
+        font-size: 1.5rem;
     }
 }

@@ -173,6 +173,25 @@
     <button id="export-btn" onclick="exportTraces()" style="margin-top: 2rem; background: transparent; color: var(--secondary); border: 1px solid var(--border); padding: 0.5rem 1rem; border-radius: 8px; font-size: 0.9rem;">Download my Traces</button>
 </main>
 
+<footer>
+    <div class="footer-content">
+        <div class="footer-quote">
+            <blockquote>
+                "The meeting of two personalities is like the contact of two chemical substances: if there is any reaction, both are transformed."
+            </blockquote>
+            <cite>— Carl Jung</cite>
+        </div>
+        <div class="footer-links">
+            <p>"The Human Thread" is a digital sanctuary for mindful reflection and human connection.</p>
+            <p>Built with intention, designed for peace.</p>
+        </div>
+        <div class="footer-moon">
+            <span id="footer-moon-phase"></span>
+            <p>May your journey be illuminated by the right light at the right time.</p>
+        </div>
+    </div>
+</footer>
+
 <audio id="ambient-audio" loop preload="none">
     <source src="https://www.soundjay.com/misc/sounds/fireplace-1.mp3" type="audio/mpeg">
     Your browser does not support the audio element.
@@ -333,6 +352,9 @@
 
         // Initialize lunar journal
         initializeLunarJournal();
+
+        // Initialize footer moon phase
+        document.getElementById('footer-moon-phase').innerText = getMoonPhase();
     });
 
     function sendStartThought() {
