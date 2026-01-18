@@ -101,10 +101,14 @@
 
     <section id="future-self">
         <h3>Letter to Your Future Self</h3>
-        <p>Write a note to the person you will be in a year.</p>
+        <p>Write a note to the person you will become.</p>
         <textarea id="future-message" placeholder="Your message..."></textarea>
+        <div style="margin: 1rem 0;">
+            <label for="wake-date" style="display: block; margin-bottom: 0.5rem; color: var(--secondary); font-size: 0.9rem;">When should this letter awaken?</label>
+            <input type="date" id="wake-date" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: 8px; font-family: 'Inter', sans-serif; font-size: 1rem;">
+        </div>
         <button class="primary-btn" onclick="castIntoFuture()">Send to Future</button>
-        <p style="font-size: 0.8em; color: var(--secondary); margin-top: 1rem;">Your letter will be safely stored in your browser's secret pocket and delivered exactly one year from today.</p>
+        <p style="font-size: 0.8em; color: var(--secondary); margin-top: 1rem;">Your letter will be safely stored in your browser's secret pocket and delivered on your chosen date.</p>
     </section>
 
     <section id="unsent-letter">
@@ -518,22 +522,24 @@
     }
 
     function castIntoFuture() {
-        // 1. Grab the message from the textarea
         const message = document.getElementById('future-message').value;
+        const chosenDate = document.getElementById('wake-date').value; // Grabs the date they picked
 
-        // 2. Set the "Wake Up" date (1 year from today)
-        const wakeDate = new Date();
-        wakeDate.setFullYear(wakeDate.getFullYear() + 1);
+        // Check if they actually picked a date and wrote a message
+        if (!message || !chosenDate) {
+            alert("Please write a note and choose a date for it to awaken.");
+            return;
+        }
 
-        // 3. Put it in the "Secret Pocket" (Browser Memory)
+        // Save to the "Secret Pocket"
         localStorage.setItem('hearth_letter', message);
-        localStorage.setItem('hearth_wake_date', wakeDate.toISOString());
+        localStorage.setItem('hearth_wake_date', chosenDate);
 
-        // 4. Tell the user it worked
-        alert("Your letter has been whispered to the future. It will sleep here for one year.");
+        alert("Your letter is sealed. It will awaken on " + chosenDate + ".");
 
-        // Clear the box so it feels like it was "sent"
+        // Clear the inputs
         document.getElementById('future-message').value = "";
+        document.getElementById('wake-date').value = "";
     }
 
     function sendUnsentLetter() {
