@@ -102,11 +102,9 @@
     <section id="future-self">
         <h3>Letter to Your Future Self</h3>
         <p>Write a note to the person you will be in a year.</p>
-        <input type="email" id="future-email" placeholder="Your email">
-        <input type="date" id="wake-date">
-        <textarea id="future-note" placeholder="Your message..."></textarea>
-        <button class="primary-btn" onclick="sendFutureLetter()">Send to Future</button>
-        <p style="font-size: 0.8em; color: var(--secondary); margin-top: 1rem;">Write this on the device you use most; it will remember you when the time comes.</p>
+        <textarea id="future-message" placeholder="Your message..."></textarea>
+        <button class="primary-btn" onclick="castIntoFuture()">Send to Future</button>
+        <p style="font-size: 0.8em; color: var(--secondary); margin-top: 1rem;">Your letter will be safely stored in your browser's secret pocket and delivered exactly one year from today.</p>
     </section>
 
     <section id="unsent-letter">
@@ -519,36 +517,23 @@
         linkElement.click();
     }
 
-    function sendFutureLetter() {
-        const memoryKey = "future_link_" + Date.now();
-        const wakeDate = document.getElementById('wake-date').value;
-        const note = document.getElementById('future-note').value;
+    function castIntoFuture() {
+        // 1. Grab the message from the textarea
+        const message = document.getElementById('future-message').value;
 
-        if (!wakeDate || !note) {
-            alert("Please fill in the date and message.");
-            return;
-        }
+        // 2. Set the "Wake Up" date (1 year from today)
+        const wakeDate = new Date();
+        wakeDate.setFullYear(wakeDate.getFullYear() + 1);
 
-        // Save to localStorage
-        localStorage.setItem('hearth_key', memoryKey);
-        localStorage.setItem('hearth_wake_date', wakeDate);
+        // 3. Put it in the "Secret Pocket" (Browser Memory)
+        localStorage.setItem('hearth_letter', message);
+        localStorage.setItem('hearth_wake_date', wakeDate.toISOString());
 
-        // Send to sheet
-        fetch(api_url, {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({data: [{
-                Note: note,
-                WakeDate: wakeDate,
-                Key: memoryKey,
-                Type: 'FutureLetter',
-                Date: new Date().toISOString()
-            }]})
-        }).then(() => {
-            alert("Letter scheduled for future delivery.");
-            document.getElementById('future-note').value = '';
-            document.getElementById('wake-date').value = '';
-        });
+        // 4. Tell the user it worked
+        alert("Your letter has been whispered to the future. It will sleep here for one year.");
+
+        // Clear the box so it feels like it was "sent"
+        document.getElementById('future-message').value = "";
     }
 
     function sendUnsentLetter() {
@@ -893,7 +878,31 @@
         initializeGarden();
     });
 
+    function checkForLetter() {
+        const savedLetter = localStorage.getItem('hearth_letter');
+        const wakeDateStr = localStorage.getItem('hearth_wake_date');
 
+        if (savedLetter && wakeDateStr) {
+            const wakeDate = new Date(wakeDateStr);
+            const today = new Date();
+
+            // If today is the day (or past it!)
+            if (today >= wakeDate) {
+                alert("A message from your past self has awakened: \n\n" + savedLetter);
+
+                // Optional: Ask them if they want to delete it or keep it
+                if(confirm("Would you like to keep this letter in your pocket? Cancel to delete it forever.")) {
+                    // Keep it
+                } else {
+                    localStorage.removeItem('hearth_letter');
+                    localStorage.removeItem('hearth_wake_date');
+                }
+            }
+        }
+    }
+
+    // Run this automatically when the page loads
+    window.onload = checkForLetter;
 
 </script>
 </body>
